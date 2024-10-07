@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	scrbr "github.com/goletan/observability/scrubber"
 	"go.opentelemetry.io/otel"
@@ -19,11 +20,13 @@ import (
 
 var (
 	// tracer is the global tracer used throughout the application.
-	tracer   trace.Tracer
+	tracer trace.Tracer
+	// scrubber is used to clean sensitive information from context data.
 	scrubber = scrbr.NewScrubber()
 )
 
 // InitTracing initializes OpenTelemetry tracing with OTLP exporter or a custom provider.
+// Ensure to call ShutdownTracing during application shutdown to flush all spans.
 func InitTracing(provider ...*sdktrace.TracerProvider) {
 	var tp *sdktrace.TracerProvider
 	if len(provider) > 0 {
@@ -34,7 +37,8 @@ func InitTracing(provider ...*sdktrace.TracerProvider) {
 		// Set up OTLP gRPC exporter
 		exporter, err := otlptracegrpc.New(ctx)
 		if err != nil {
-			fmt.Errorf("Failed to create the collector exporter: %v", err)
+			log.Printf("Failed to create the collector exporter: %v", err)
+			os.Exit(1)
 		}
 
 		// Create a new TracerProvider with a batch span processor and the OTLP exporter
@@ -42,7 +46,7 @@ func InitTracing(provider ...*sdktrace.TracerProvider) {
 			sdktrace.WithBatcher(exporter),
 			sdktrace.WithResource(resource.NewWithAttributes(
 				semconv.SchemaURL,
-				semconv.ServiceNameKey.String("Goletan"),
+				semconv.ServiceNameKey.String(getServiceName()),
 			)),
 		)
 	}
@@ -55,6 +59,15 @@ func InitTracing(provider ...*sdktrace.TracerProvider) {
 	log.Println("Tracing initialized successfully")
 }
 
+// getServiceName retrieves the service name from environment variables or uses a default.
+func getServiceName() string {
+	serviceName := os.Getenv("SERVICE_NAME")
+	if serviceName == "" {
+		serviceName = "Goletan"
+	}
+	return serviceName
+}
+
 // GetTracer returns the global tracer for creating spans in the application.
 func GetTracer() trace.Tracer {
 	return tracer
@@ -63,25 +76,40 @@ func GetTracer() trace.Tracer {
 // StartSpan starts a new span with contextual data.
 func StartSpan(ctx context.Context, name string, context map[string]interface{}) (context.Context, trace.Span) {
 	ctx, span := tracer.Start(ctx, name)
-	// Convert the context map to span attributes
+	maxAttributes := 10
+	count := 0
 	for k, v := range context {
+		if count >= maxAttributes {
+			break
+		}
 		if str, ok := v.(string); ok {
 			v = scrubber.Scrub(str) // Scrub the context data before adding it to the span
 		}
 		span.SetAttributes(attribute.String(k, fmt.Sprintf("%v", v)))
+		count++
 	}
+
 	return ctx, span
 }
 
 // EndSpan ends the current span and records error if present.
+
+// ShutdownTracing shuts down the tracer provider gracefully, ensuring all spans are exported.
 func EndSpan(span trace.Span, err error) {
 	if err != nil {
 		span.RecordError(err)
-		span.SetAttributes(attribute.String("error", "true")) // Mark the error explicitly
 		span.SetStatus(codes.Error, err.Error())
 	} else {
-		span.SetAttributes(attribute.String("status", "Success")) // Mark success explicitly
 		span.SetStatus(codes.Ok, "Success")
 	}
 	span.End()
+}
+
+// ShutdownTracing shuts down the tracer provider gracefully, ensuring all spans are exported.
+func ShutdownTracing(ctx context.Context) error {
+	tp := otel.GetTracerProvider()
+	if provider, ok := tp.(*sdktrace.TracerProvider); ok {
+		return provider.Shutdown(ctx)
+	}
+	return nil
 }

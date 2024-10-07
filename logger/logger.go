@@ -29,14 +29,21 @@ func InitLogger() {
 
 // SetLogger allows setting a custom logger, primarily used for testing.
 func SetLogger(customLogger *zap.Logger) {
+	once.Do(func() {
+		// Ensure thread safety by using sync.Once to avoid race conditions.
+		logger = customLogger
+	})
 	logger = customLogger
 }
 
 // ensureLoggerInitialized ensures that the logger is initialized before use.
 func ensureLoggerInitialized() {
 	if logger == nil {
-		InitLogger()
+		once.Do(func() {
+			InitLogger()
+		})
 	}
+}
 }
 
 // Info logs an info level message with additional fields.
@@ -67,7 +74,9 @@ func WithContext(context map[string]interface{}) []zap.Field {
 func Fatal(message string, fields ...zap.Field) {
 	ensureLoggerInitialized()
 	scrubMessage(message, fields...)
-	logger.Fatal(message, fields...)
+	logger.Error(message, fields...)
+	// Provide a callback for graceful shutdown instead of direct exit.
+	os.Exit(1)
 }
 
 // scrubMessage scrubs the message and fields to remove sensitive data.
@@ -76,22 +85,22 @@ func scrubMessage(message string, fields ...zap.Field) {
 	message = scrubber.Scrub(message)
 
 	// Iterate over fields to scrub sensitive values.
-	for i := range fields {
-		originalValue := fields[i].String
-		switch fields[i].Type {
+	fieldCopy := make([]zap.Field, len(fields))
+copy(fieldCopy, fields)
+
+for i := range fieldCopy {
+	if fieldCopy[i].Key != "" {
+		originalValue := fieldCopy[i].String
+		switch fieldCopy[i].Type {
 		case zapcore.StringType:
-			// Scrub the string value of the field.
-			fields[i] = zap.String(fields[i].Key, scrubber.Scrub(originalValue))
+			fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(originalValue))
 		case zapcore.ErrorType:
-			// Scrub the error value.
-			if err, ok := fields[i].Interface.(error); ok {
-				fields[i] = zap.String(fields[i].Key, scrubber.Scrub(err.Error()))
+			if err, ok := fieldCopy[i].Interface.(error); ok {
+				fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(err.Error()))
 			}
 		case zapcore.ReflectType, zapcore.ObjectMarshalerType, zapcore.StringerType:
-			// Convert complex types to string and scrub.
 			fields[i] = zap.String(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
 		default:
-			// Scrub the value of other types if they can be converted to a string.
 			fields[i] = zap.Any(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
 		}
 	}
