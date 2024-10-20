@@ -1,5 +1,5 @@
 // /observability/logger/logger_test.go
-package observability_test
+package logger
 
 import (
 	"testing"

@@ -1,5 +1,5 @@
 // /observability/tracing/tracing.go
-package observability
+package tracing
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	scrbr "github.com/goletan/observability/scrubber"
+	utils "github.com/goletan/observability/utils"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -22,7 +22,7 @@ var (
 	// tracer is the global tracer used throughout the application.
 	tracer trace.Tracer
 	// scrubber is used to clean sensitive information from context data.
-	scrubber = scrbr.NewScrubber()
+	scrubber = utils.NewScrubber()
 )
 
 // InitTracing initializes OpenTelemetry tracing with OTLP exporter or a custom provider.

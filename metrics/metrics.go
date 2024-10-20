@@ -1,12 +1,12 @@
 // /observability/metrics/metrics.go
-package observability
+package metrics
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	scrbr "github.com/goletan/observability/scrubber"
+	utils "github.com/goletan/observability/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -82,7 +82,7 @@ var (
 )
 
 var (
-	scrubber = scrbr.NewScrubber()
+	scrubber = utils.NewScrubber()
 )
 
 // InitMetrics initializes Prometheus metrics and starts the metrics server.

@@ -1,12 +1,12 @@
 // /observability/metrics/metrics_test.go
-package observability_test
+package metrics
 
 import (
 	"strings"
 	"sync"
 	"testing"
 
-	metrics "github.com/goletan/observability/metrics"
+	"github.com/goletan/observability/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )

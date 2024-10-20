@@ -1,12 +1,12 @@
 // /observability/tracing/tracing_test.go
-package observability_test
+package tracing
 
 import (
 	"context"
 	"errors"
 	"testing"
 
-	tracing "github.com/goletan/observability/tracing"
+	"github.com/goletan/observability/tracing"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

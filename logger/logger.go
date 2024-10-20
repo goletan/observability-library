@@ -1,11 +1,11 @@
 // /observability/logger/logger.go
-package observability
+package logger
 
 import (
 	"fmt"
 	"sync"
 
-	scrbr "github.com/goletan/observability/scrubber"
+	utils "github.com/goletan/observability/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -13,7 +13,7 @@ import (
 var (
 	logger   *zap.Logger
 	once     sync.Once
-	scrubber = scrbr.NewScrubber()
+	scrubber = utils.NewScrubber()
 )
 
 // InitLogger initializes the default logger. It will panic if the logger fails to initialize.
@@ -43,7 +43,6 @@ func ensureLoggerInitialized() {
 			InitLogger()
 		})
 	}
-}
 }
 
 // Info logs an info level message with additional fields.

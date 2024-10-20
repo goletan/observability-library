@@ -1,14 +1,14 @@
-// /observability/scrubber/scrubber_test.go
-package observability_test
+// /observability/utils/scrubber_test.go
+package utils
 
 import (
 	"testing"
 
-	scrbr "github.com/goletan/observability/scrubber"
+	"github.com/goletan/observability/utils"
 )
 
 func TestScrubber_ScrubSensitiveData(t *testing.T) {
-	scrubber := scrbr.NewScrubber()
+	scrubber := utils.NewScrubber()
 	tests := []struct {
 		name     string
 		input    string
@@ -90,7 +90,7 @@ func TestScrubberPatterns(t *testing.T) {
 		{"Scrub IP address", "Connect to 192.168.1.1", "Connect to [REDACTED]"},
 	}
 
-	scrubber := scrbr.NewScrubber()
+	scrubber := utils.NewScrubber()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			output := scrubber.Scrub(tt.input)
