@@ -3,6 +3,7 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	"sync"
 
 	utils "github.com/goletan/observability/utils"
@@ -85,22 +86,23 @@ func scrubMessage(message string, fields ...zap.Field) {
 
 	// Iterate over fields to scrub sensitive values.
 	fieldCopy := make([]zap.Field, len(fields))
-copy(fieldCopy, fields)
+	copy(fieldCopy, fields)
 
-for i := range fieldCopy {
-	if fieldCopy[i].Key != "" {
-		originalValue := fieldCopy[i].String
-		switch fieldCopy[i].Type {
-		case zapcore.StringType:
-			fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(originalValue))
-		case zapcore.ErrorType:
-			if err, ok := fieldCopy[i].Interface.(error); ok {
-				fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(err.Error()))
+	for i := range fieldCopy {
+		if fieldCopy[i].Key != "" {
+			originalValue := fieldCopy[i].String
+			switch fieldCopy[i].Type {
+			case zapcore.StringType:
+				fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(originalValue))
+			case zapcore.ErrorType:
+				if err, ok := fieldCopy[i].Interface.(error); ok {
+					fieldCopy[i] = zap.String(fieldCopy[i].Key, scrubber.Scrub(err.Error()))
+				}
+			case zapcore.ReflectType, zapcore.ObjectMarshalerType, zapcore.StringerType:
+				fields[i] = zap.String(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
+			default:
+				fields[i] = zap.Any(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
 			}
-		case zapcore.ReflectType, zapcore.ObjectMarshalerType, zapcore.StringerType:
-			fields[i] = zap.String(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
-		default:
-			fields[i] = zap.Any(fields[i].Key, scrubber.Scrub(fmt.Sprintf("%v", fields[i].Interface)))
 		}
 	}
 }
