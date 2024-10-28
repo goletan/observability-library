@@ -97,7 +97,7 @@ var (
 		prometheus.CounterOpts{
 			Namespace: "goletan",
 			Subsystem: "messages",
-			Name:      "goletan_messages_produced_total",
+			Name:      "produced_total",
 			Help:      "Total number of messages produced.",
 		},
 		[]string{"event_type", "status", "partition"},
@@ -106,7 +106,7 @@ var (
 		prometheus.CounterOpts{
 			Namespace: "goletan",
 			Subsystem: "messages",
-			Name:      "goletan_messages_consumed_total",
+			Name:      "consumed_total",
 			Help:      "Total number of messages consumed.",
 		},
 		[]string{"event_type", "status", "partition"},
@@ -169,18 +169,10 @@ func InitMetrics() {
 		}
 	}()
 
-	go collectRuntimeMetrics()
-}
+	done := make(chan bool)
+	defer close(done)
 
-func collectRuntimeMetrics() {
-	for {
-		var m runtime.MemStats
-		runtime.ReadMemStats(&m)
-		MemoryUsage.Set(float64(m.Alloc))
-		GoroutinesCount.Set(float64(runtime.NumGoroutine()))
-
-		time.Sleep(5 * time.Second)
-	}
+	go collectRuntimeMetrics(done)
 }
 
 func registerHTTPMetrics() error {
@@ -310,4 +302,20 @@ func CountTimeout(operation, service string) {
 // CountBulkheadLimitReached logs when a bulkhead limit is reached for a specific service.
 func CountBulkheadLimitReached(service string) {
 	BulkheadLimitReached.WithLabelValues(service).Inc()
+}
+
+func collectRuntimeMetrics(done chan bool) {
+	for {
+		select {
+		case <-done:
+			return
+		default:
+			var m runtime.MemStats
+			runtime.ReadMemStats(&m)
+			MemoryUsage.Set(float64(m.Alloc))
+			GoroutinesCount.Set(float64(runtime.NumGoroutine()))
+
+			time.Sleep(5 * time.Second)
+		}
+	}
 }

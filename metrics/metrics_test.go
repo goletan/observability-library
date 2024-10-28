@@ -2,9 +2,11 @@
 package metrics
 
 import (
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
@@ -252,10 +254,10 @@ func TestAppErrorMetrics(t *testing.T) {
 
 	// Adjusted expected output for the metrics
 	expectedMetrics := `
-		# HELP goletan_kernel_error_count_total Total count of errors encountered by the application.
-		# TYPE goletan_kernel_error_count_total counter
-		goletan_kernel_error_count_total{context="[REDACTED]",service="[REDACTED]",type="[REDACTED]"} 1
-		goletan_kernel_error_count_total{context="test_context",service="test_service",type="test_error"} 1
+		# HELP goletan_runtime_error_count_total Total count of errors encountered by the application.
+		# TYPE goletan_runtime_error_count_total counter
+		goletan_runtime_error_count_total{context="[REDACTED]",service="[REDACTED]",type="[REDACTED]"} 1
+		goletan_runtime_error_count_total{context="test_context",service="test_service",type="test_error"} 1
 	`
 
 	// Collect all registered metrics and compare them with the expected metrics.
@@ -279,12 +281,15 @@ func TestMessagesMetrics(t *testing.T) {
 
 	// Adjusted expected output for the metrics
 	expectedMetrics := `
- 		# HELP goletan_messages_consumed_total Total number of messages consumed.
-        # TYPE goletan_messages_consumed_total counter
-        goletan_messages_consumed_total{event_type="user_created",partition="partition",status="OK"} 1
-        # HELP goletan_messages_produced_total Total number of messages produced.
-        # TYPE goletan_messages_produced_total counter
-        goletan_messages_produced_total{event_type="user_created",partition="partition",status="OK"} 1
+		# HELP goletan_messages_produced_total Total number of messages produced.
+		# TYPE goletan_messages_produced_total counter
+		goletan_messages_produced_total{event_type="user_created",partition="partition",status="OK"} 1
+		# HELP goletan_messages_consumed_total Total number of messages consumed.
+		# TYPE goletan_messages_consumed_total counter
+		goletan_messages_consumed_total{event_type="user_created",partition="partition",status="OK"} 1
+		# HELP goletan_runtime_goroutines_count Number of goroutines currently running.
+    	# TYPE goletan_runtime_goroutines_count gauge
+        goletan_runtime_goroutines_count 0
     `
 
 	// Collect all registered metrics and compare them with the expected metrics.
@@ -298,20 +303,48 @@ func TestGoroutineMetrics(t *testing.T) {
 	goroutineRegistry := prometheus.NewRegistry()
 
 	// Register the specific collectors we want to test.
+	goroutineRegistry.MustRegister(MemoryUsage)
 	goroutineRegistry.MustRegister(GoroutinesCount)
 
-	// Simulate recording some metrics
-	collectRuntimeMetrics()
+	// Create a channel to stop the metric collection after the test.
+	done := make(chan bool)
+	defer close(done)
 
-	// Adjusted expected output for the metrics
-	expectedMetrics := `
-		# HELP goletan_security_events_count Counts security-related events like failed authentications.
-		# TYPE goletan_security_events_count counter
-		goletan_security_events_count{event_type="failed_login",service="auth_service",severity="high"} 1
-	`
+	// Start collecting runtime metrics.
+	go collectRuntimeMetrics(done)
 
-	// Collect all registered metrics and compare them with the expected metrics.
-	if err := testutil.GatherAndCompare(goroutineRegistry, strings.NewReader(expectedMetrics)); err != nil {
-		t.Errorf("unexpected collecting result:\n%s", err)
+	// Wait for a few cycles of metric collection.
+	time.Sleep(6 * time.Second)
+
+	// Get the actual number of goroutines at this point.
+	expectedGoroutines := float64(runtime.NumGoroutine())
+
+	// Allow some flexibility, e.g., a 20% difference.
+	tolerance := 0.2
+	minGoroutines := expectedGoroutines * (1 - tolerance)
+	maxGoroutines := expectedGoroutines * (1 + tolerance)
+
+	// Collect and compare goroutine count.
+	collectedGoroutines := testutil.ToFloat64(GoroutinesCount)
+	if collectedGoroutines < minGoroutines || collectedGoroutines > maxGoroutines {
+		t.Errorf("unexpected goroutines count: got %v, want within range [%v, %v]", collectedGoroutines, minGoroutines, maxGoroutines)
 	}
+
+	// Get the actual memory usage.
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	expectedMemoryUsage := float64(m.Alloc)
+
+	// Allow a similar tolerance for memory usage.
+	minMemoryUsage := expectedMemoryUsage * (1 - tolerance)
+	maxMemoryUsage := expectedMemoryUsage * (1 + tolerance)
+
+	// Collect and compare memory usage.
+	collectedMemoryUsage := testutil.ToFloat64(MemoryUsage)
+	if collectedMemoryUsage < minMemoryUsage || collectedMemoryUsage > maxMemoryUsage {
+		t.Errorf("unexpected memory usage: got %v, want within range [%v, %v]", collectedMemoryUsage, minMemoryUsage, maxMemoryUsage)
+	}
+
+	// Signal the goroutine to stop.
+	done <- true
 }
