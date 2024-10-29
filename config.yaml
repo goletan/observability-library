@@ -1,0 +1,4 @@
+# Observability Config
+
+logger:
+  level: "INFO"

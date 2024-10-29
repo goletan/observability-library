@@ -3,10 +3,10 @@ package logger
 
 import (
 	"fmt"
-	"os"
 	"sync"
 
-	utils "github.com/goletan/observability/utils"
+	"github.com/goletan/config"
+	"github.com/goletan/observability/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -15,13 +15,36 @@ var (
 	logger   *zap.Logger
 	once     sync.Once
 	scrubber = utils.NewScrubber()
+	cfgCache *ObservabilityConfig
 )
+
+// Config holds the configuration for the logger.
+type ObservabilityConfig struct {
+	Logger struct {
+		Level string `mapstructure:"level"`
+	} `mapstructure:"logger"`
+}
 
 // InitLogger initializes the default logger. It will panic if the logger fails to initialize.
 func InitLogger() {
 	once.Do(func() {
 		var err error
-		logger, err = zap.NewProduction()
+		zapConfig := zap.NewProductionConfig()
+
+		cfgCache = &ObservabilityConfig{}
+		err = config.LoadConfig("Observability", cfgCache, nil)
+		if err != nil {
+			fmt.Printf("Warning: failed to load observability configuration, using defaults: %v\n", err)
+		}
+
+		if cfgCache.Logger.Level != "" {
+			if err := zapConfig.Level.UnmarshalText([]byte(cfgCache.Logger.Level)); err != nil {
+				fmt.Printf("Invalid log level: %v, defaulting to INFO\n", cfgCache.Logger.Level)
+				zapConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+			}
+		}
+
+		logger, err = zapConfig.Build()
 		if err != nil {
 			panic("Failed to initialize logger: " + err.Error())
 		}
@@ -40,9 +63,7 @@ func SetLogger(customLogger *zap.Logger) {
 // ensureLoggerInitialized ensures that the logger is initialized before use.
 func ensureLoggerInitialized() {
 	if logger == nil {
-		once.Do(func() {
-			InitLogger()
-		})
+		panic("Logger not initialized. Call InitLogger first.")
 	}
 }
 
@@ -53,11 +74,32 @@ func Info(message string, fields ...zap.Field) {
 	logger.Info(message, fields...)
 }
 
+// Debug logs a debug level message with additional fields.
+func Debug(message string, fields ...zap.Field) {
+	ensureLoggerInitialized()
+	scrubMessage(message, fields...)
+	logger.Debug(message, fields...)
+}
+
 // Error logs an error level message with additional fields.
 func Error(message string, fields ...zap.Field) {
 	ensureLoggerInitialized()
 	scrubMessage(message, fields...)
 	logger.Error(message, fields...)
+}
+
+// Warn logs a warning level message with additional fields.
+func Warn(message string, fields ...zap.Field) {
+	ensureLoggerInitialized()
+	scrubMessage(message, fields...)
+	logger.Warn(message, fields...)
+}
+
+// Fatal logs a fatal error and exits the application.
+func Fatal(message string, fields ...zap.Field) {
+	ensureLoggerInitialized()
+	scrubMessage(message, fields...)
+	logger.Fatal(message, fields...)
 }
 
 // WithContext adds contextual fields to the log entries.
@@ -68,15 +110,6 @@ func WithContext(context map[string]interface{}) []zap.Field {
 		fields = append(fields, zap.Any(k, v))
 	}
 	return fields
-}
-
-// Fatal logs a fatal error and exits the application.
-func Fatal(message string, fields ...zap.Field) {
-	ensureLoggerInitialized()
-	scrubMessage(message, fields...)
-	logger.Error(message, fields...)
-	// Provide a callback for graceful shutdown instead of direct exit.
-	os.Exit(1)
 }
 
 // scrubMessage scrubs the message and fields to remove sensitive data.
