@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/goletan/config"
+	"github.com/goletan/observability/types"
 	"github.com/goletan/observability/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -15,15 +16,8 @@ var (
 	logger   *zap.Logger
 	once     sync.Once
 	scrubber = utils.NewScrubber()
-	cfgCache *ObservabilityConfig
+	cfg      *types.ObservabilityConfig
 )
-
-// Config holds the configuration for the logger.
-type ObservabilityConfig struct {
-	Logger struct {
-		Level string `mapstructure:"level"`
-	} `mapstructure:"logger"`
-}
 
 // InitLogger initializes the default logger. It will panic if the logger fails to initialize.
 func InitLogger() {
@@ -31,15 +25,15 @@ func InitLogger() {
 		var err error
 		zapConfig := zap.NewProductionConfig()
 
-		cfgCache = &ObservabilityConfig{}
-		err = config.LoadConfig("Observability", cfgCache, nil)
+		cfg = &types.ObservabilityConfig{}
+		err = config.LoadConfig("Observability", cfg, nil)
 		if err != nil {
 			fmt.Printf("Warning: failed to load observability configuration, using defaults: %v\n", err)
 		}
 
-		if cfgCache.Logger.Level != "" {
-			if err := zapConfig.Level.UnmarshalText([]byte(cfgCache.Logger.Level)); err != nil {
-				fmt.Printf("Invalid log level: %v, defaulting to INFO\n", cfgCache.Logger.Level)
+		if cfg.Logger.Level != "" {
+			if err := zapConfig.Level.UnmarshalText([]byte(cfg.Logger.Level)); err != nil {
+				fmt.Printf("Invalid log level: %v, defaulting to INFO\n", cfg.Logger.Level)
 				zapConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 			}
 		}
