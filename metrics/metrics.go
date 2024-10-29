@@ -113,6 +113,55 @@ var (
 	)
 )
 
+// Event Metrics: Track event processing metrics
+var (
+	EventPublished = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "goletan",
+			Subsystem: "events",
+			Name:      "published_total",
+			Help:      "Total number of events published.",
+		},
+		[]string{"event_type"},
+	)
+	EventDropped = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "goletan",
+			Subsystem: "events",
+			Name:      "dropped_total",
+			Help:      "Total number of events dropped.",
+		},
+		[]string{"event_type"},
+	)
+	EventProcessed = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "goletan",
+			Subsystem: "events",
+			Name:      "processed_total",
+			Help:      "Total number of events processed.",
+		},
+		[]string{"event_type"},
+	)
+	EventSent = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "goletan",
+			Subsystem: "events",
+			Name:      "sent_total",
+			Help:      "Total number of events sent.",
+		},
+		[]string{"event_type"},
+	)
+	EventFailed = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "goletan",
+			Subsystem: "events",
+			Name:      "failed_total",
+			Help:      "Total number of events failed.",
+		},
+		[]string{"event_type"},
+	)
+)
+
 // Application Metrics: Track application related metrics
 var (
 	AppErrorCount = prometheus.NewCounterVec(
@@ -159,6 +208,9 @@ func InitMetrics() {
 	}
 	if err := registerMessagesMetrics(); err != nil {
 		log.Printf("Warning: failed to register messages metrics: %v", err)
+	}
+	if err := registerEventMetrics(); err != nil {
+		log.Printf("Warning: failed to register event metrics: %v", err)
 	}
 
 	http.Handle("/metrics", promhttp.Handler())
@@ -231,6 +283,30 @@ func registerMessagesMetrics() error {
 	return nil
 }
 
+func registerEventMetrics() error {
+	if err := prometheus.Register(EventPublished); err != nil {
+		return err
+	}
+
+	if err := prometheus.Register(EventDropped); err != nil {
+		return err
+	}
+
+	if err := prometheus.Register(EventProcessed); err != nil {
+		return err
+	}
+
+	if err := prometheus.Register(EventSent); err != nil {
+		return err
+	}
+
+	if err := prometheus.Register(EventFailed); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func registerAppMetrics() error {
 	if err := prometheus.Register(AppErrorCount); err != nil {
 		return err
@@ -292,6 +368,31 @@ func IncrementMessagesProduced(eventType, status, partition string) {
 // IncrementMessagesConsumed increments the Kafka consumed message counter
 func IncrementMessagesConsumed(eventType, status, partition string) {
 	MessagesConsumed.WithLabelValues(eventType, status, partition).Inc()
+}
+
+// IncrementEventPublished increments the event published counter.
+func IncrementEventPublished(eventType string) {
+	EventPublished.WithLabelValues(eventType).Inc()
+}
+
+// IncrementEventDropped increments the event dropped counter.
+func IncrementEventDropped(eventType string) {
+	EventDropped.WithLabelValues(eventType).Inc()
+}
+
+// IncrementEventProcessed increments the event processed counter.
+func IncrementEventProcessed(eventType string) {
+	EventProcessed.WithLabelValues(eventType).Inc()
+}
+
+// IncrementEventSent increments the event sent counter.
+func IncrementEventSent(eventType string) {
+	EventSent.WithLabelValues(eventType).Inc()
+}
+
+// IncrementEventFailed increments the event failed counter.
+func IncrementEventFailed(eventType string) {
+	EventFailed.WithLabelValues(eventType).Inc()
 }
 
 // CountTimeout logs a timeout event for a specific operation and service.
