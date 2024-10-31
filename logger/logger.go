@@ -45,6 +45,10 @@ func InitLogger() {
 	})
 }
 
+func GetInstance() *zap.Logger {
+	return logger
+}
+
 // SetLogger allows setting a custom logger, primarily used for testing.
 func SetLogger(customLogger *zap.Logger) {
 	once.Do(func() {
