@@ -1,0 +1,13 @@
+# Observability Config
+
+bulkhead:
+  capacity: 1
+  timeout: 5s
+
+logger:
+  log_level: "INFO"
+
+tracing:
+  service_name: ""
+  exporter: ""
+  sampling_ratio: 3.14

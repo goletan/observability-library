@@ -1,4 +1,4 @@
-// /observability/metrics/metrics_test.go
+// /observability/internal/metrics/metrics_test.go
 package metrics
 
 import (

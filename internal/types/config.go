@@ -11,7 +11,7 @@ type ObservabilityConfig struct {
 	} `mapstructure:"bulkhead"`
 
 	Logger struct {
-		Level string `mapstructure:"level"`
+		LogLevel string `mapstructure:"log_level"`
 	} `mapstructure:"logger"`
 
 	Tracing struct {

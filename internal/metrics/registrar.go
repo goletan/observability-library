@@ -1,4 +1,4 @@
-// /observability/metrics/registrar.go
+// /observability/internal/metrics/registrar.go
 package metrics
 
 type MetricsRegistrar interface {

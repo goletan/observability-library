@@ -3,11 +3,12 @@ package logger
 
 import (
 	"fmt"
+	"log" // Fallback logger for initialization issues
 	"sync"
 
 	"github.com/goletan/config"
-	"github.com/goletan/observability/types"
-	"github.com/goletan/observability/utils"
+	"github.com/goletan/observability/internal/types"
+	"github.com/goletan/observability/internal/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -19,34 +20,38 @@ var (
 	cfg      *types.ObservabilityConfig
 )
 
-// InitLogger initializes the default logger. It will panic if the logger fails to initialize.
-func InitLogger() {
+// InitLogger initializes the default logger and returns it.
+// It will return an error if the logger fails to initialize.
+func InitLogger() (*zap.Logger, error) {
+	var err error
 	once.Do(func() {
-		var err error
 		zapConfig := zap.NewProductionConfig()
 
 		cfg = &types.ObservabilityConfig{}
 		err = config.LoadConfig("Observability", cfg, nil)
 		if err != nil {
-			fmt.Printf("Warning: failed to load observability configuration, using defaults: %v\n", err)
+			log.Printf("Warning: failed to load observability configuration, using defaults: %v\n", err)
 		}
 
-		if cfg.Logger.Level != "" {
-			if err := zapConfig.Level.UnmarshalText([]byte(cfg.Logger.Level)); err != nil {
-				fmt.Printf("Invalid log level: %v, defaulting to INFO\n", cfg.Logger.Level)
+		if cfg.Logger.LogLevel != "" {
+			if err := zapConfig.Level.UnmarshalText([]byte(cfg.Logger.LogLevel)); err != nil {
+				log.Printf("Invalid log level: %v, defaulting to INFO\n", cfg.Logger.LogLevel)
 				zapConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 			}
 		}
 
 		logger, err = zapConfig.Build()
 		if err != nil {
-			panic("Failed to initialize logger: " + err.Error())
+			err = fmt.Errorf("failed to initialize logger: %w", err)
+			log.Printf("Critical: %v\n", err) // Use fallback logger to log this critical error
+			return
 		}
 	})
-}
 
-func GetInstance() *zap.Logger {
-	return logger
+	if err != nil {
+		return nil, err
+	}
+	return logger, nil
 }
 
 // SetLogger allows setting a custom logger, primarily used for testing.
