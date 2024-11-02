@@ -1,5 +1,5 @@
 // /observability/pkg/observability.go
-package pkg
+package observability
 
 import (
 	"context"
@@ -19,7 +19,6 @@ type Observability struct {
 }
 
 func NewObserver() (*Observability, error) {
-	// Initialize each module independently
 	log, err := logger.InitLogger()
 	if err != nil {
 		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 1001, nil)

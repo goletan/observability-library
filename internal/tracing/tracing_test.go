@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/goletan/observability/tracing"
+	"github.com/goletan/observability/internal/tracing"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

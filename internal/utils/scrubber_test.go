@@ -4,7 +4,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/goletan/observability/utils"
+	"github.com/goletan/observability/internal/utils"
 )
 
 func TestScrubber_ScrubSensitiveData(t *testing.T) {
