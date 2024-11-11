@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/goletan/config"
+	config "github.com/goletan/config/pkg"
 	"github.com/goletan/observability/internal/types"
 	"github.com/goletan/observability/internal/utils"
 	"go.opentelemetry.io/otel"

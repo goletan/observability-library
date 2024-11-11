@@ -8,6 +8,7 @@ import (
 	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
+	"github.com/goletan/observability/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -39,6 +40,10 @@ func NewObserver() (*Observability, error) {
 		Metrics: metricsManager,
 		Tracer:  tracer,
 	}, nil
+}
+
+func NewScrubber() *utils.Scrubber {
+	return utils.NewScrubber()
 }
 
 func (o *Observability) Shutdown() error {
