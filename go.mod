@@ -2,10 +2,8 @@ module github.com/goletan/observability
 
 go 1.23
 
-replace github.com/goletan/config => ../config
-
 require (
-	github.com/goletan/config v0.0.0-00010101000000-000000000000
+	github.com/goletan/config v0.0.0-20241117132450-f61d955a9e0c
 	github.com/prometheus/client_golang v1.20.4
 	go.opentelemetry.io/otel v1.30.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.30.0
@@ -14,6 +12,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.30.0
 	go.uber.org/zap v1.27.0
 )
+
+replace github.com/goletan/config => github.com/goletan/config v0.0.0-20241117132450-f61d955a9e0c
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
