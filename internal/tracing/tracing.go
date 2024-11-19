@@ -8,7 +8,6 @@ import (
 	"os"
 	"sync"
 
-	config "github.com/goletan/config/pkg"
 	"github.com/goletan/observability/internal/types"
 	"github.com/goletan/observability/internal/utils"
 	"go.opentelemetry.io/otel"
@@ -25,12 +24,11 @@ import (
 var (
 	scrubber = utils.NewScrubber()
 	once     sync.Once
-	cfg      *types.ObservabilityConfig
 )
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
 // It returns the Tracer instance and an error if any occurs during setup.
-func InitTracing(provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
+func InitTracing(cfg types.ObservabilityConfig, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 	var tp *sdktrace.TracerProvider
 	var err error
 	once.Do(func() {
@@ -38,11 +36,6 @@ func InitTracing(provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 			// Use provided TracerProvider, useful for testing or custom setups
 			tp = provider[0]
 		} else {
-			cfg = &types.ObservabilityConfig{}
-			if loadErr := config.LoadConfig("Observability", cfg, nil); loadErr != nil {
-				log.Printf("Warning: failed to load tracing configuration, using defaults: %v", loadErr)
-			}
-
 			ctx := context.Background()
 
 			// Set up OTLP gRPC exporter
@@ -58,7 +51,7 @@ func InitTracing(provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 				sdktrace.WithBatcher(exporter),
 				sdktrace.WithResource(resource.NewWithAttributes(
 					semconv.SchemaURL,
-					semconv.ServiceNameKey.String(getServiceName()),
+					semconv.ServiceNameKey.String(getServiceName(cfg)),
 				)),
 			)
 		}
@@ -118,8 +111,8 @@ func ShutdownTracing(ctx context.Context) error {
 }
 
 // getServiceName retrieves the service name from the configuration or defaults to "GoletanService".
-func getServiceName() string {
-	if cfg != nil && cfg.Tracing.ServiceName != "" {
+func getServiceName(cfg types.ObservabilityConfig) string {
+	if cfg.Tracing.ServiceName != "" {
 		return cfg.Tracing.ServiceName
 	}
 

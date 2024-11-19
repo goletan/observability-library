@@ -4,10 +4,12 @@ package observability
 import (
 	"context"
 
+	"github.com/goletan/observability/internal/config"
 	"github.com/goletan/observability/internal/errors"
 	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
+	"github.com/goletan/observability/internal/types"
 	"github.com/goletan/observability/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -19,8 +21,12 @@ type Observability struct {
 	Tracer  trace.Tracer
 }
 
-func NewObserver() (*Observability, error) {
-	log, err := logger.InitLogger()
+func LoadObservabilityConfig(logger *zap.Logger) (*types.ObservabilityConfig, error) {
+	return config.LoadObservabilityConfig(logger)
+}
+
+func NewObserver(cfg types.ObservabilityConfig) (*Observability, error) {
+	log, err := logger.InitLogger(cfg)
 	if err != nil {
 		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 1001, nil)
 	}
@@ -30,7 +36,7 @@ func NewObserver() (*Observability, error) {
 		return nil, errors.WrapError(log, err, "Failed to initialize metrics", 1002, nil)
 	}
 
-	tracer, err := tracing.InitTracing()
+	tracer, err := tracing.InitTracing(cfg)
 	if err != nil {
 		return nil, errors.WrapError(log, err, "Failed to initialize tracing", 1003, nil)
 	}
