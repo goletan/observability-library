@@ -21,7 +21,7 @@ var (
 
 // InitLogger initializes the default logger and returns it.
 // It will return an error if the logger fails to initialize.
-func InitLogger(cfg types.ObservabilityConfig) (*zap.Logger, error) {
+func InitLogger(cfg *types.ObservabilityConfig) (*zap.Logger, error) {
 	var err error
 	once.Do(func() {
 		zapConfig := zap.NewProductionConfig()

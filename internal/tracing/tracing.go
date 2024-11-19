@@ -28,7 +28,7 @@ var (
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
 // It returns the Tracer instance and an error if any occurs during setup.
-func InitTracing(cfg types.ObservabilityConfig, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
+func InitTracing(cfg *types.ObservabilityConfig, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 	var tp *sdktrace.TracerProvider
 	var err error
 	once.Do(func() {
@@ -111,7 +111,7 @@ func ShutdownTracing(ctx context.Context) error {
 }
 
 // getServiceName retrieves the service name from the configuration or defaults to "GoletanService".
-func getServiceName(cfg types.ObservabilityConfig) string {
+func getServiceName(cfg *types.ObservabilityConfig) string {
 	if cfg.Tracing.ServiceName != "" {
 		return cfg.Tracing.ServiceName
 	}

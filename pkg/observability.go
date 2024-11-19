@@ -25,7 +25,11 @@ func LoadObservabilityConfig(logger *zap.Logger) (*types.ObservabilityConfig, er
 	return config.LoadObservabilityConfig(logger)
 }
 
-func NewObserver(cfg types.ObservabilityConfig) (*Observability, error) {
+func NewObserver(cfg *types.ObservabilityConfig) (*Observability, error) {
+	if cfg == nil {
+		return nil, errors.WrapError(nil, nil, "observability configuration is nil", 1000, nil)
+	}
+
 	log, err := logger.InitLogger(cfg)
 	if err != nil {
 		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 1001, nil)
