@@ -9,7 +9,6 @@ import (
 	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
-	"github.com/goletan/observability/internal/types"
 	"github.com/goletan/observability/internal/utils"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
@@ -21,11 +20,9 @@ type Observability struct {
 	Tracer  trace.Tracer
 }
 
-func LoadObservabilityConfig(logger *zap.Logger) (*types.ObservabilityConfig, error) {
-	return config.LoadObservabilityConfig(logger)
-}
-
-func NewObserver(cfg *types.ObservabilityConfig) (*Observability, error) {
+func NewObserver() (*Observability, error) {
+	// Load configuration
+	cfg, err := config.LoadObservabilityConfig()
 	if cfg == nil {
 		return nil, errors.WrapError(nil, nil, "observability configuration is nil", 1000, nil)
 	}
