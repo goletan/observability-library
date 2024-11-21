@@ -1,9 +1,8 @@
-// /observability/types/config.go
-package types
+// /observability/config/config.go
+package config
 
 import "time"
 
-// Holds the configuration for the logger.
 type ObservabilityConfig struct {
 	Bulkhead struct {
 		Capacity int           `mapstructure:"capacity"`

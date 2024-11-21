@@ -4,7 +4,7 @@ package observability
 import (
 	"context"
 
-	"github.com/goletan/observability/internal/config"
+	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/errors"
 	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
@@ -20,13 +20,7 @@ type Observability struct {
 	Tracer  trace.Tracer
 }
 
-func NewObserver() (*Observability, error) {
-	// Load configuration
-	cfg, err := config.LoadObservabilityConfig()
-	if cfg == nil {
-		return nil, errors.WrapError(nil, nil, "observability configuration is nil", 1000, nil)
-	}
-
+func NewObserver(cfg *config.ObservabilityConfig) (*Observability, error) {
 	log, err := logger.InitLogger(cfg)
 	if err != nil {
 		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 1001, nil)
