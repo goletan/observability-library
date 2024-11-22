@@ -2,25 +2,32 @@
 package metrics
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/goletan/observability/shared/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
 
-func InitMetrics() (*MetricsManager, error) {
+func InitMetrics(log *zap.Logger) (*MetricsManager, error) {
 	manager := NewManager()
 
 	// Initialize all registered metrics
-	if err := manager.Init(); err != nil {
-		return nil, fmt.Errorf("failed to initialize metrics: %w", err)
+	if err := manager.Init(log); err != nil {
+		return nil, errors.WrapError(log, err, "failed to initialize metrics", 2001, map[string]interface{}{
+			"component": "metrics",
+			"endpoint":  "init",
+		})
 	}
 
 	// Start the metrics server
 	go func() {
-		fmt.Println("Starting metrics server on :2112")
+		log.Info("Starting metrics server on :2112")
 		if err := http.ListenAndServe(":2112", promhttp.Handler()); err != nil {
-			fmt.Printf("Error starting metrics server: %v\n", err)
+			errors.WrapError(log, err, "failed to start metrics server", 2002, map[string]interface{}{
+				"component": "metrics",
+				"endpoint":  "ListenAndServe",
+			})
 		}
 	}()
 

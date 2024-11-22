@@ -3,7 +3,7 @@ package logger
 
 import (
 	"fmt"
-	"log" // Fallback logger for initialization issues
+	"log"
 	"sync"
 
 	"github.com/goletan/observability/config"
@@ -36,7 +36,7 @@ func InitLogger(cfg *config.ObservabilityConfig) (*zap.Logger, error) {
 		logger, err = zapConfig.Build()
 		if err != nil {
 			err = fmt.Errorf("failed to initialize logger: %w", err)
-			log.Printf("Critical: %v\n", err) // Use fallback logger to log this critical error
+			log.Printf("Critical: %v\n", err) // Use fallback logger to log this critical errorshift
 			return
 		}
 	})

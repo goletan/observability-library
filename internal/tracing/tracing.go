@@ -4,12 +4,11 @@ package tracing
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
 	"sync"
 
 	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/utils"
+	"github.com/goletan/observability/shared/errors"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -19,6 +18,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
 // It returns the Tracer instance and an error if any occurs during setup.
-func InitTracing(cfg *config.ObservabilityConfig, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
+func InitTracing(cfg *config.ObservabilityConfig, log *zap.Logger, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 	var tp *sdktrace.TracerProvider
 	var err error
 	once.Do(func() {
@@ -42,7 +42,10 @@ func InitTracing(cfg *config.ObservabilityConfig, provider ...*sdktrace.TracerPr
 			var exporter *otlptrace.Exporter
 			exporter, err = otlptracegrpc.New(ctx)
 			if err != nil {
-				err = fmt.Errorf("failed to create the collector exporter: %w", err)
+				errors.WrapError(log, err, "Failed to create the OTLP gRPC exporter", 1002, map[string]interface{}{
+					"component": "tracing",
+					"endpoint":  "grpc",
+				})
 				return
 			}
 
@@ -58,7 +61,7 @@ func InitTracing(cfg *config.ObservabilityConfig, provider ...*sdktrace.TracerPr
 
 		// Register the global tracer provider
 		otel.SetTracerProvider(tp)
-		log.Println("Tracing initialized successfully")
+		log.Info("Tracing initialized successfully")
 	})
 
 	if err != nil {
@@ -110,15 +113,11 @@ func ShutdownTracing(ctx context.Context) error {
 	return nil
 }
 
-// getServiceName retrieves the service name from the configuration or defaults to "GoletanService".
+// getServiceName retrieves the service name from the configuration.
 func getServiceName(cfg *config.ObservabilityConfig) string {
 	if cfg.Tracing.ServiceName != "" {
 		return cfg.Tracing.ServiceName
 	}
 
-	if serviceName := os.Getenv("SERVICE_NAME"); serviceName != "" {
-		return serviceName
-	}
-
-	return "GoletanService"
+	return "UnknownService"
 }

@@ -2,7 +2,8 @@
 package metrics
 
 import (
-	"fmt"
+	"github.com/goletan/observability/shared/errors"
+	"go.uber.org/zap"
 )
 
 type MetricsManager struct {
@@ -17,10 +18,13 @@ func (m *MetricsManager) Register(registrar MetricsRegistrar) {
 	m.registrars = append(m.registrars, registrar)
 }
 
-func (m *MetricsManager) Init() error {
+func (m *MetricsManager) Init(log *zap.Logger) error {
 	for _, registrar := range m.registrars {
 		if err := registrar.Register(); err != nil {
-			return fmt.Errorf("failed to register metrics: %w", err)
+			return errors.WrapError(log, err, "failed to register metrics", 2001, map[string]interface{}{
+				"component": "metrics",
+				"endpoint":  "register",
+			})
 		}
 	}
 	return nil

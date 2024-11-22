@@ -5,11 +5,11 @@ import (
 	"context"
 
 	"github.com/goletan/observability/config"
-	"github.com/goletan/observability/internal/errors"
 	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
 	"github.com/goletan/observability/internal/utils"
+	"github.com/goletan/observability/shared/errors"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -23,17 +23,17 @@ type Observability struct {
 func NewObserver(cfg *config.ObservabilityConfig) (*Observability, error) {
 	log, err := logger.InitLogger(cfg)
 	if err != nil {
-		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 1001, nil)
+		return nil, errors.WrapError(nil, err, "Failed to initialize logger", 3001, nil)
 	}
 
-	metricsManager, err := metrics.InitMetrics()
+	metricsManager, err := metrics.InitMetrics(log)
 	if err != nil {
-		return nil, errors.WrapError(log, err, "Failed to initialize metrics", 1002, nil)
+		return nil, errors.WrapError(log, err, "Failed to initialize metrics", 2001, nil)
 	}
 
-	tracer, err := tracing.InitTracing(cfg)
+	tracer, err := tracing.InitTracing(cfg, log)
 	if err != nil {
-		return nil, errors.WrapError(log, err, "Failed to initialize tracing", 1003, nil)
+		return nil, errors.WrapError(log, err, "Failed to initialize tracing", 1001, nil)
 	}
 
 	return &Observability{
@@ -50,8 +50,7 @@ func NewScrubber() *utils.Scrubber {
 func (o *Observability) Shutdown() error {
 	ctx := context.Background()
 	if err := tracing.ShutdownTracing(ctx); err != nil {
-		o.Logger.Error("Failed to shutdown tracer", zap.Error(err))
-		return err
+		return errors.WrapError(o.Logger, err, "Failed to shutdown tracer", 1004, nil)
 	}
 	return nil
 }

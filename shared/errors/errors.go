@@ -1,4 +1,4 @@
-// /observability/internal/errors/errors.go
+// /observability/shared/errors/errors.go
 package errors
 
 import (
