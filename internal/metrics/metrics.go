@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"github.com/goletan/observability/shared/errors"
+	"github.com/goletan/observability/shared/logger"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.uber.org/zap"
 )
 
-func InitMetrics(log *zap.Logger) (*MetricsManager, error) {
+func InitMetrics(log *logger.ZapLogger) (*MetricsManager, error) {
 	manager := NewManager()
 
 	// Initialize all registered metrics

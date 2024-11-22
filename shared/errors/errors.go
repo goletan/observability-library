@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/goletan/observability/shared/logger"
 	"go.uber.org/zap"
 )
 
@@ -16,7 +17,7 @@ type AppError struct {
 	Err       error
 	Timestamp time.Time
 	Context   map[string]interface{}
-	Logger    *zap.Logger
+	Logger    *logger.ZapLogger
 }
 
 // Error implements the error interface for AppError.
@@ -38,27 +39,27 @@ func (e *AppError) logError() {
 }
 
 // WrapError creates a new AppError with an existing error wrapped inside and logs it.
-func WrapError(logger *zap.Logger, err error, message string, code int, context map[string]interface{}) *AppError {
+func WrapError(log *logger.ZapLogger, err error, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,
 		Err:       err,
 		Timestamp: time.Now(),
 		Context:   context,
-		Logger:    logger,
+		Logger:    log,
 	}
 	appError.logError()
 	return appError
 }
 
 // NewError creates a new AppError without wrapping an existing error and logs it.
-func NewError(logger *zap.Logger, message string, code int, context map[string]interface{}) *AppError {
+func NewError(log *logger.ZapLogger, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,
 		Timestamp: time.Now(),
 		Context:   context,
-		Logger:    logger,
+		Logger:    log,
 	}
 	appError.logError()
 	return appError

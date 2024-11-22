@@ -9,6 +9,7 @@ import (
 	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/utils"
 	"github.com/goletan/observability/shared/errors"
+	"github.com/goletan/observability/shared/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -18,7 +19,6 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
-	"go.uber.org/zap"
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
 // It returns the Tracer instance and an error if any occurs during setup.
-func InitTracing(cfg *config.ObservabilityConfig, log *zap.Logger, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
+func InitTracing(cfg *config.ObservabilityConfig, log *logger.ZapLogger, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 	var tp *sdktrace.TracerProvider
 	var err error
 	once.Do(func() {
