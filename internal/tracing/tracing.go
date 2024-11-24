@@ -70,24 +70,26 @@ func InitTracing(cfg *config.ObservabilityConfig, log *logger.ZapLogger, provide
 	return tp.Tracer("goletan-tracer"), nil
 }
 
-// StartSpan creates a new span with provided contextual data.
-func StartSpan(ctx context.Context, name string, context map[string]interface{}, tracer trace.Tracer) (context.Context, trace.Span) {
+// StartSpanWithMetadata creates a new span with standard metadata.
+func StartSpanWithMetadata(cfg *config.ObservabilityConfig, ctx context.Context, name string, context map[string]interface{}, tracer trace.Tracer) (context.Context, trace.Span) {
 	if tracer == nil {
 		tracer = otel.Tracer("goletan-tracer")
 	}
 
-	ctx, span := tracer.Start(ctx, name)
-	maxAttributes := 10
-	count := 0
+	ctx, span := tracer.Start(ctx, name,
+		trace.WithAttributes(
+			attribute.String("service.name", getServiceName(cfg)), // Consistent service name across spans
+			attribute.String("environment", cfg.Environment),      // Assuming we have Environment in cfg
+			attribute.String("operation.name", name),
+		),
+	)
+
+	// Add user-defined attributes, scrub sensitive data where needed
 	for k, v := range context {
-		if count >= maxAttributes {
-			break
-		}
 		if str, ok := v.(string); ok {
 			v = scrubber.Scrub(str)
 		}
 		span.SetAttributes(attribute.String(k, fmt.Sprintf("%v", v)))
-		count++
 	}
 
 	return ctx, span
@@ -119,5 +121,5 @@ func getServiceName(cfg *config.ObservabilityConfig) string {
 		return cfg.Tracing.ServiceName
 	}
 
-	return "UnknownService"
+	return "GoletanService"
 }

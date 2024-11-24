@@ -4,6 +4,8 @@ package config
 import "time"
 
 type ObservabilityConfig struct {
+	Environment string `mapstructure:"environment"`
+
 	Bulkhead struct {
 		Capacity int           `mapstructure:"capacity"`
 		Timeout  time.Duration `mapstructure:"timeout"`
