@@ -1,5 +1,5 @@
-// /observability/shared/tracing/kafka/producer_observability.go
-package kafka
+// /observability/shared/observers/messages/producer.go
+package messages
 
 import (
 	"context"
