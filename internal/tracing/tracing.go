@@ -4,8 +4,9 @@ package tracing
 import (
 	"context"
 	"fmt"
-	"github.com/goletan/observability/shared/config"
 	"sync"
+
+	observability "github.com/goletan/observability/shared/config"
 
 	"github.com/goletan/observability/internal/utils"
 	"github.com/goletan/observability/shared/errors"
@@ -28,7 +29,7 @@ var (
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
 // It returns the Tracer instance and an error if any occurs during setup.
-func InitTracing(cfg *config.ObservabilityConfig, log *logger.ZapLogger, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
+func InitTracing(cfg *observability.ObservabilityConfig, log *logger.ZapLogger, provider ...*sdktrace.TracerProvider) (trace.Tracer, error) {
 	var tp *sdktrace.TracerProvider
 	var err error
 	once.Do(func() {
@@ -71,7 +72,7 @@ func InitTracing(cfg *config.ObservabilityConfig, log *logger.ZapLogger, provide
 }
 
 // StartSpanWithMetadata creates a new span with standard metadata.
-func StartSpanWithMetadata(cfg *config.ObservabilityConfig, ctx context.Context, name string, context map[string]interface{}, tracer trace.Tracer) (context.Context, trace.Span) {
+func StartSpanWithMetadata(cfg *observability.ObservabilityConfig, ctx context.Context, name string, context map[string]interface{}, tracer trace.Tracer) (context.Context, trace.Span) {
 	if tracer == nil {
 		tracer = otel.Tracer("goletan-tracer")
 	}
@@ -116,7 +117,7 @@ func ShutdownTracing(ctx context.Context) error {
 }
 
 // getServiceName retrieves the service name from the configuration.
-func getServiceName(cfg *config.ObservabilityConfig) string {
+func getServiceName(cfg *observability.ObservabilityConfig) string {
 	if cfg.Tracing.ServiceName != "" {
 		return cfg.Tracing.ServiceName
 	}

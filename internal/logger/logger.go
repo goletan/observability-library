@@ -3,11 +3,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/goletan/observability/shared/config"
 	"log"
 	"sync"
 
 	"github.com/goletan/observability/internal/utils"
+	observability "github.com/goletan/observability/shared/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -16,12 +16,12 @@ var (
 	logger   *zap.Logger
 	once     sync.Once
 	scrubber = utils.NewScrubber()
-	cfg      *config.ObservabilityConfig
+	cfg      *observability.ObservabilityConfig
 )
 
 // InitLogger initializes the default logger and returns it.
 // It will return an error if the logger fails to initialize.
-func InitLogger(cfg *config.ObservabilityConfig) (*zap.Logger, error) {
+func InitLogger(cfg *observability.ObservabilityConfig) (*zap.Logger, error) {
 	var err error
 	once.Do(func() {
 		zapConfig := zap.NewProductionConfig()
