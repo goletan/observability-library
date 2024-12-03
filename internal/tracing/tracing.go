@@ -4,9 +4,9 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"github.com/goletan/observability/shared/config"
 	"sync"
 
-	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/utils"
 	"github.com/goletan/observability/shared/errors"
 	"github.com/goletan/observability/shared/logger"

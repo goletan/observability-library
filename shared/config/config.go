@@ -1,5 +1,4 @@
-// /observability/config/config.go
-package config
+package observability
 
 import "time"
 

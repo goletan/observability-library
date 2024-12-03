@@ -3,10 +3,10 @@ package logger
 
 import (
 	"fmt"
+	"github.com/goletan/observability/shared/config"
 	"log"
 	"sync"
 
-	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

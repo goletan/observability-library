@@ -1,10 +1,9 @@
-// /observability/pkg/observability.go
 package observability
 
 import (
 	"context"
+	observability "github.com/goletan/observability/shared/config"
 
-	"github.com/goletan/observability/config"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
 	"github.com/goletan/observability/internal/utils"
@@ -20,7 +19,7 @@ type Observability struct {
 	Tracer  trace.Tracer
 }
 
-func NewObserver(cfg *config.ObservabilityConfig) (*Observability, error) {
+func NewObserver(cfg *observability.ObservabilityConfig) (*Observability, error) {
 	zapCfg := zap.NewProductionConfig()
 	if cfg.Logger.LogLevel != "" {
 		if err := zapCfg.Level.UnmarshalText([]byte(cfg.Logger.LogLevel)); err != nil {
@@ -50,6 +49,7 @@ func NewObserver(cfg *config.ObservabilityConfig) (*Observability, error) {
 	}, nil
 }
 
+// TODO: Move to security library
 func NewScrubber() *utils.Scrubber {
 	return utils.NewScrubber()
 }
