@@ -4,11 +4,11 @@ package tracing
 import (
 	"context"
 	"fmt"
+	security "github.com/goletan/security/pkg"
 	"sync"
 
 	observability "github.com/goletan/observability/shared/config"
 
-	"github.com/goletan/observability/internal/utils"
 	"github.com/goletan/observability/shared/errors"
 	"github.com/goletan/observability/shared/logger"
 	"go.opentelemetry.io/otel"
@@ -23,7 +23,7 @@ import (
 )
 
 var (
-	scrubber = utils.NewScrubber()
+	scrubber = security.NewScrubber()
 	once     sync.Once
 )
 

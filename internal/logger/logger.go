@@ -3,10 +3,10 @@ package logger
 
 import (
 	"fmt"
+	security "github.com/goletan/security/pkg"
 	"log"
 	"sync"
 
-	"github.com/goletan/observability/internal/utils"
 	observability "github.com/goletan/observability/shared/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -15,8 +15,7 @@ import (
 var (
 	logger   *zap.Logger
 	once     sync.Once
-	scrubber = utils.NewScrubber()
-	cfg      *observability.ObservabilityConfig
+	scrubber = security.NewScrubber()
 )
 
 // InitLogger initializes the default logger and returns it.

@@ -1,4 +1,4 @@
-package main
+package observability
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
-	"github.com/goletan/observability/internal/utils"
 	"github.com/goletan/observability/shared/errors"
 	"github.com/goletan/observability/shared/logger"
 	"go.opentelemetry.io/otel/trace"
@@ -47,11 +46,6 @@ func NewObserver(cfg *observability.ObservabilityConfig) (*Observability, error)
 		Metrics: metricsManager,
 		Tracer:  tracer,
 	}, nil
-}
-
-// TODO: Move to security library
-func NewScrubber() *utils.Scrubber {
-	return utils.NewScrubber()
 }
 
 func (o *Observability) Shutdown() error {
