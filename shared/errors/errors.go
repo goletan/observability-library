@@ -1,6 +1,7 @@
-package errors
+package observability
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -16,7 +17,7 @@ type AppError struct {
 	Err       error
 	Timestamp time.Time
 	Context   map[string]interface{}
-	Logger    *logger.ZapLogger
+	Logger    *observability.ZapLogger
 }
 
 // Error implements the error interface for AppError.
@@ -38,7 +39,7 @@ func (e *AppError) logError() {
 }
 
 // WrapError creates a new AppError with an existing error wrapped inside and logs it.
-func WrapError(log *logger.ZapLogger, err error, message string, code int, context map[string]interface{}) *AppError {
+func WrapError(log *observability.ZapLogger, err error, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,
@@ -52,7 +53,7 @@ func WrapError(log *logger.ZapLogger, err error, message string, code int, conte
 }
 
 // NewError creates a new AppError without wrapping an existing error and logs it.
-func NewError(log *logger.ZapLogger, message string, code int, context map[string]interface{}) *AppError {
+func NewError(log *observability.ZapLogger, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,
@@ -67,7 +68,8 @@ func NewError(log *logger.ZapLogger, message string, code int, context map[strin
 // IsRetryable checks if the error is considered retryable based on error code or message patterns.
 func IsRetryable(err error) bool {
 	// Attempt to cast the error to AppError type
-	appErr, ok := err.(*AppError)
+	var appErr *AppError
+	ok := errors.As(err, &appErr)
 	if !ok {
 		// If it's not an AppError, you might have other transient errors in your application
 		return false

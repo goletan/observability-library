@@ -1,5 +1,4 @@
-// /observability/shared/observers/messages/producer.go
-package messages
+package observability
 
 import (
 	"context"
@@ -13,7 +12,7 @@ import (
 )
 
 // ProduceMessageWithObservability produces a Kafka message with tracing and logging capabilities.
-func ProduceMessageWithObservability(ctx context.Context, writer *kafka.Writer, msg kafka.Message, tracer trace.Tracer, log *logger.ZapLogger) error {
+func ProduceMessageWithObservability(ctx context.Context, writer *kafka.Writer, msg kafka.Message, tracer trace.Tracer, log *observability.ZapLogger) error {
 	// Start a new span for Kafka message production
 	ctx, span := tracer.Start(ctx, "kafka_produce_message",
 		trace.WithAttributes(

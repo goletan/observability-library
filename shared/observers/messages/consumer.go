@@ -1,5 +1,4 @@
-// /observability/shared/observers/messages/consumer.go
-package messages
+package observability
 
 import (
 	"context"

@@ -1,5 +1,4 @@
-// /observability/shared/tracing/grpc_interceptors.go
-package grpc
+package observability
 
 import (
 	"context"
@@ -11,7 +10,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// otelUnaryClientInterceptor is a unary client interceptor for OpenTelemetry tracing.
+// GRPCUnaryClientInterceptor otelUnaryClientInterceptor is a unary client interceptor for OpenTelemetry tracing.
 func GRPCUnaryClientInterceptor(tracer trace.Tracer, serviceName string) grpc.UnaryClientInterceptor {
 	return func(
 		ctx context.Context,
@@ -51,7 +50,7 @@ func GRPCUnaryClientInterceptor(tracer trace.Tracer, serviceName string) grpc.Un
 	}
 }
 
-// otelUnaryServerInterceptor is a unary server interceptor for OpenTelemetry tracing.
+// GRPCUnaryServerInterceptor is a unary server interceptor for OpenTelemetry tracing.
 func GRPCUnaryServerInterceptor(tracer trace.Tracer) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
