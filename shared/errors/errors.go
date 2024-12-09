@@ -1,4 +1,4 @@
-package observability
+package errors
 
 import (
 	"errors"
@@ -17,7 +17,7 @@ type AppError struct {
 	Err       error
 	Timestamp time.Time
 	Context   map[string]interface{}
-	Logger    *observability.ZapLogger
+	Logger    *logger.ZapLogger
 }
 
 // Error implements the error interface for AppError.
@@ -39,7 +39,7 @@ func (e *AppError) logError() {
 }
 
 // WrapError creates a new AppError with an existing error wrapped inside and logs it.
-func WrapError(log *observability.ZapLogger, err error, message string, code int, context map[string]interface{}) *AppError {
+func WrapError(log *logger.ZapLogger, err error, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,
@@ -53,7 +53,7 @@ func WrapError(log *observability.ZapLogger, err error, message string, code int
 }
 
 // NewError creates a new AppError without wrapping an existing error and logs it.
-func NewError(log *observability.ZapLogger, message string, code int, context map[string]interface{}) *AppError {
+func NewError(log *logger.ZapLogger, message string, code int, context map[string]interface{}) *AppError {
 	appError := &AppError{
 		Code:      code,
 		Message:   message,

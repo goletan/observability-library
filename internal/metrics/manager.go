@@ -1,4 +1,3 @@
-// /observability/internal/metrics/manager.go
 package metrics
 
 import (

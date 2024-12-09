@@ -2,7 +2,7 @@ package observability
 
 import (
 	"context"
-	observability "github.com/goletan/observability/shared/config"
+	"github.com/goletan/observability/shared/config"
 
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
@@ -18,7 +18,7 @@ type Observability struct {
 	Tracer  trace.Tracer
 }
 
-func NewObserver(cfg *observability.ObservabilityConfig) (*Observability, error) {
+func NewObserver(cfg *config.ObservabilityConfig) (*Observability, error) {
 	zapCfg := zap.NewProductionConfig()
 	if cfg.Logger.LogLevel != "" {
 		if err := zapCfg.Level.UnmarshalText([]byte(cfg.Logger.LogLevel)); err != nil {
