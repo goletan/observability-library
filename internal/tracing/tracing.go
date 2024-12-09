@@ -3,7 +3,7 @@ package tracing
 import (
 	"context"
 	"fmt"
-	security "github.com/goletan/security/pkg"
+	"github.com/goletan/security/shared/scrubber"
 	"sync"
 
 	"github.com/goletan/observability/shared/config"
@@ -22,8 +22,7 @@ import (
 )
 
 var (
-	scrubber = security.NewScrubber()
-	once     sync.Once
+	once sync.Once
 )
 
 // InitTracing initializes OpenTelemetry tracing with an OTLP gRPC exporter.
@@ -42,7 +41,7 @@ func InitTracing(cfg *config.ObservabilityConfig, log *logger.ZapLogger, provide
 			var exporter *otlptrace.Exporter
 			exporter, err = otlptracegrpc.New(ctx)
 			if err != nil {
-				errors.WrapError(log, err, "Failed to create the OTLP gRPC exporter", 1002, map[string]interface{}{
+				err = errors.WrapError(log, err, "Failed to create the OTLP gRPC exporter", 1002, map[string]interface{}{
 					"component": "tracing",
 					"endpoint":  "grpc",
 				})
@@ -84,10 +83,11 @@ func StartSpanWithMetadata(cfg *config.ObservabilityConfig, ctx context.Context,
 		),
 	)
 
+	scrub := scrubber.NewScrubber()
 	// Add user-defined attributes, scrub sensitive data where needed
 	for k, v := range context {
 		if str, ok := v.(string); ok {
-			v = scrubber.Scrub(str)
+			v = scrub.Scrub(str)
 		}
 		span.SetAttributes(attribute.String(k, fmt.Sprintf("%v", v)))
 	}

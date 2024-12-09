@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// GRPCUnaryClientInterceptor is a unary client interceptor for OpenTelemetry tracing.
-func GRPCUnaryClientInterceptor(tracer trace.Tracer, serviceName string) grpc.UnaryClientInterceptor {
+// UnaryClientInterceptor is a unary client interceptor for OpenTelemetry tracing.
+func UnaryClientInterceptor(tracer trace.Tracer) grpc.UnaryClientInterceptor {
 	return func(
 		ctx context.Context,
 		method string,
@@ -50,8 +50,8 @@ func GRPCUnaryClientInterceptor(tracer trace.Tracer, serviceName string) grpc.Un
 	}
 }
 
-// GRPCUnaryServerInterceptor is a unary server interceptor for OpenTelemetry tracing.
-func GRPCUnaryServerInterceptor(tracer trace.Tracer) grpc.UnaryServerInterceptor {
+// UnaryServerInterceptor is a unary server interceptor for OpenTelemetry tracing.
+func UnaryServerInterceptor(tracer trace.Tracer) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},

@@ -5,19 +5,20 @@ import (
 	"github.com/goletan/observability/shared/logger"
 )
 
-type MetricsManager struct {
-	registrars []MetricsRegistrar
+// Manager manages the registration and initialization of metrics components.
+type Manager struct {
+	registrars []Registrar
 }
 
-func NewManager() *MetricsManager {
-	return &MetricsManager{}
+func NewManager() *Manager {
+	return &Manager{}
 }
 
-func (m *MetricsManager) Register(registrar MetricsRegistrar) {
+func (m *Manager) Register(registrar Registrar) {
 	m.registrars = append(m.registrars, registrar)
 }
 
-func (m *MetricsManager) Init(log *logger.ZapLogger) error {
+func (m *Manager) Init(log *logger.ZapLogger) error {
 	for _, registrar := range m.registrars {
 		if err := registrar.Register(); err != nil {
 			return errors.WrapError(log, err, "failed to register metrics", 2001, map[string]interface{}{

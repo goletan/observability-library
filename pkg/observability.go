@@ -14,7 +14,7 @@ import (
 
 type Observability struct {
 	Logger  *logger.ZapLogger
-	Metrics *metrics.MetricsManager
+	Metrics *metrics.Manager
 	Tracer  trace.Tracer
 }
 
