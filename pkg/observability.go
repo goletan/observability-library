@@ -13,7 +13,7 @@ import (
 )
 
 type Observability struct {
-	Logger  logger.LoggerInterface
+	Logger  *logger.ZapLogger
 	Metrics *metrics.MetricsManager
 	Tracer  trace.Tracer
 }
