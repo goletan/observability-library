@@ -2,10 +2,10 @@ package observability
 
 import (
 	"context"
-	"github.com/goletan/observability/shared/config"
 
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
+	"github.com/goletan/observability/shared/config"
 	"github.com/goletan/observability/shared/errors"
 	"github.com/goletan/observability/shared/logger"
 	"go.opentelemetry.io/otel/trace"
