@@ -13,7 +13,9 @@ type ZapLogger struct {
 	scrubber *scrubber.Scrubber
 }
 
-func NewLogger(cfg *zap.Config) (*ZapLogger, error) {
+func NewLogger() (*ZapLogger, error) {
+	cfg := zap.NewProductionConfig()
+
 	logger, err := cfg.Build()
 	if err != nil {
 		return nil, err
