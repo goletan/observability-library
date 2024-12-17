@@ -3,13 +3,13 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/security/shared/scrubber"
 	"sync"
 
 	"github.com/goletan/observability/shared/config"
 
 	"github.com/goletan/observability/shared/errors"
-	"github.com/goletan/observability/shared/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

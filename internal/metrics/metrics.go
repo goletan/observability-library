@@ -1,10 +1,10 @@
 package metrics
 
 import (
+	"github.com/goletan/observability/internal/logger"
 	"net/http"
 
 	"github.com/goletan/observability/shared/errors"
-	"github.com/goletan/observability/shared/logger"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

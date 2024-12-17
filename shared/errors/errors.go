@@ -3,10 +3,10 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"github.com/goletan/observability/internal/logger"
 	"strings"
 	"time"
 
-	"github.com/goletan/observability/shared/logger"
 	"go.uber.org/zap"
 )
 

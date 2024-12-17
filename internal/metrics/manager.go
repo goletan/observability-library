@@ -1,8 +1,8 @@
 package metrics
 
 import (
+	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/shared/errors"
-	"github.com/goletan/observability/shared/logger"
 )
 
 // Manager manages the registration and initialization of metrics components.
