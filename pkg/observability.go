@@ -3,8 +3,8 @@ package observability
 import (
 	"context"
 
+	logger "github.com/goletan/logger/pkg"
 	"github.com/goletan/observability/internal/config"
-	"github.com/goletan/observability/internal/logger"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
 	"github.com/goletan/observability/shared/errors"

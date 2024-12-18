@@ -3,7 +3,7 @@ package errors
 import (
 	"errors"
 	"fmt"
-	"github.com/goletan/observability/internal/logger"
+	logger "github.com/goletan/logger/pkg"
 	"strings"
 	"time"
 
