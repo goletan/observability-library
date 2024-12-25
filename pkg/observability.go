@@ -4,10 +4,10 @@ import (
 	"context"
 
 	logger "github.com/goletan/logger-library/pkg"
-	"github.com/goletan/observability/internal/config"
-	"github.com/goletan/observability/internal/metrics"
-	"github.com/goletan/observability/internal/tracing"
-	"github.com/goletan/observability/shared/errors"
+	"github.com/goletan/observability-library/internal/config"
+	"github.com/goletan/observability-library/internal/metrics"
+	"github.com/goletan/observability-library/internal/tracing"
+	"github.com/goletan/observability-library/shared/errors"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )

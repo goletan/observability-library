@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/goletan/config-library/pkg"
 	logger "github.com/goletan/logger-library/pkg"
-	"github.com/goletan/observability/internal/types"
+	"github.com/goletan/observability-library/internal/types"
 	"go.uber.org/zap"
 )
 

@@ -4,7 +4,7 @@ import (
 	logger "github.com/goletan/logger-library/pkg"
 	"net/http"
 
-	"github.com/goletan/observability/shared/errors"
+	"github.com/goletan/observability-library/shared/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
