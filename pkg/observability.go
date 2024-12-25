@@ -3,7 +3,7 @@ package observability
 import (
 	"context"
 
-	logger "github.com/goletan/logger/pkg"
+	logger "github.com/goletan/logger-library/pkg"
 	"github.com/goletan/observability/internal/config"
 	"github.com/goletan/observability/internal/metrics"
 	"github.com/goletan/observability/internal/tracing"
@@ -21,12 +21,12 @@ type Observability struct {
 func NewObserver() (*Observability, error) {
 	log, err := logger.NewLogger()
 	if err != nil {
-		log.Fatal("Failed to create logger", zap.Error(err))
+		log.Fatal("Failed to create logger-library", zap.Error(err))
 	}
 
 	cfg, err := config.LoadObservabilityConfig(log)
 	if err != nil {
-		log.Fatal("Failed to load observability configuration", zap.Error(err))
+		log.Fatal("Failed to load observability-library configuration", zap.Error(err))
 	}
 
 	metricsManager, err := metrics.InitMetrics(log)

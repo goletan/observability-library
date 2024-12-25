@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	logger "github.com/goletan/logger/pkg"
+	logger "github.com/goletan/logger-library/pkg"
 	"net/http"
 
 	"github.com/goletan/observability/shared/errors"

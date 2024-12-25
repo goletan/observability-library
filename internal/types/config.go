@@ -12,7 +12,7 @@ type ObservabilityConfig struct {
 
 	Logger struct {
 		LogLevel string `mapstructure:"log_level"`
-	} `mapstructure:"logger"`
+	} `mapstructure:"logger-library"`
 
 	Tracing struct {
 		ServiceName   string  `mapstructure:"service_name"`

@@ -3,7 +3,7 @@ package tracing
 import (
 	"context"
 	"fmt"
-	logger "github.com/goletan/logger/pkg"
+	logger "github.com/goletan/logger-library/pkg"
 	"github.com/goletan/observability/internal/types"
 	"github.com/goletan/security/shared/scrubber"
 	"sync"

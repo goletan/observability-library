@@ -3,7 +3,7 @@ package errors
 import (
 	"errors"
 	"fmt"
-	logger "github.com/goletan/logger/pkg"
+	logger "github.com/goletan/logger-library/pkg"
 	"strings"
 	"time"
 
@@ -28,7 +28,7 @@ func (e *AppError) Error() string {
 	return fmt.Sprintf("Code: %d, Message: %s, Timestamp: %s", e.Code, e.Message, e.Timestamp.Format(time.RFC3339))
 }
 
-// Log the error details using the provided logger.
+// Log the error details using the provided logger-library.
 func (e *AppError) logError() {
 	if e.Logger != nil {
 		e.Logger.Info("Error Occurred", zap.Int("code", e.Code), zap.String("message", e.Message), zap.Any("context", e.Context), zap.String("timestamp", e.Timestamp.Format(time.RFC3339)))

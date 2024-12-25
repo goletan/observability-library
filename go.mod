@@ -1,4 +1,4 @@
-module github.com/goletan/observability
+module github.com/goletan/observability-library
 
 go 1.23
 
