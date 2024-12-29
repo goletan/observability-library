@@ -29,7 +29,7 @@ func NewObserver() (*Observability, error) {
 		log.Fatal("Failed to load observability-library configuration", zap.Error(err))
 	}
 
-	metricsManager, err := metrics.InitMetrics(log)
+	metricsManager, err := metrics.InitMetrics(cfg, log)
 	if err != nil {
 		return nil, errors.WrapError(log, err, "Failed to initialize metrics", 2001, nil)
 	}

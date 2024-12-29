@@ -5,6 +5,10 @@ import "time"
 type ObservabilityConfig struct {
 	Environment string `mapstructure:"environment"`
 
+	Metrics struct {
+		Address string `mapstructure:"address"`
+	} `mapstructure:"metrics"`
+
 	Bulkhead struct {
 		Capacity int           `mapstructure:"capacity"`
 		Timeout  time.Duration `mapstructure:"timeout"`
@@ -12,7 +16,7 @@ type ObservabilityConfig struct {
 
 	Logger struct {
 		LogLevel string `mapstructure:"log_level"`
-	} `mapstructure:"logger-library"`
+	} `mapstructure:"logger"`
 
 	Tracing struct {
 		ServiceName   string  `mapstructure:"service_name"`
