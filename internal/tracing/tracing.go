@@ -59,7 +59,6 @@ func InitTracing(cfg *types.ObservabilityConfig, log *logger.ZapLogger, provider
 
 		// Register the global tracer provider
 		otel.SetTracerProvider(tp)
-		log.Info("Tracing initialized successfully")
 	})
 
 	if err != nil {
